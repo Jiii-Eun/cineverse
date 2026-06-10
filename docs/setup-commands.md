@@ -14,62 +14,81 @@ mkdir -p .cursor/rules docs
 
 ### 생성된 파일
 
-| 파일                                 | 설명                               |
-| ------------------------------------ | ---------------------------------- |
+| 파일 | 설명 |
+|------|------|
 | `.cursor/rules/movie-collection.mdc` | 프로젝트 통합 Cursor 룰 (6개 섹션) |
-| `docs/setup-commands.md`             | 명령어 사용 기록 (이 파일)         |
-
-> 파일 내용은 에디터/도구로 직접 작성. 셸에서 `touch`·`echo` 등은 사용하지 않음.
+| `docs/setup-commands.md` | 명령어 사용 기록 (이 파일) |
 
 ---
 
-## 예정 — Expo 프로젝트 초기화 (아직 미실행)
+## 2026-06-10 — Expo 프로젝트 초기화
 
-아래는 프로젝트 스캐폴딩 시 사용할 예정 명령어입니다.
-
-### 1. Expo 프로젝트 생성
+### 1. Expo 프로젝트 생성 (비어 있지 않은 디렉터리 → temp 폴더 사용)
 
 ```bash
-npx create-expo-app@latest . --template tabs
+# 루트에 기존 파일(.cursor, docs 등)이 있어 직접 생성 불가
+npx create-expo-app@latest . --template blank-typescript --yes
+# → 실패: 디렉터리가 비어 있지 않음
+
+# temp 폴더에 생성 후 루트로 병합
+npx create-expo-app@latest temp-expo --template blank-typescript --yes
 ```
 
-또는 빈 템플릿:
+### 2. temp-expo → 루트 병합
 
 ```bash
-npx create-expo-app@latest . --template blank-typescript
+cp temp-expo/package.json temp-expo/package-lock.json temp-expo/tsconfig.json temp-expo/.gitignore ./
+cp -r temp-expo/assets ./
+cp -r temp-expo/node_modules ./
+rm -rf temp-expo
 ```
 
-### 2. 의존성 설치
+### 3. node_modules 재설치 (복사본 불완전 시)
 
 ```bash
-# NativeWind
-npx expo install nativewind react-native-reanimated react-native-safe-area-context
-npm install --save-dev tailwindcss@3
-
-# TanStack Query
-npm install @tanstack/react-query
-
-# Zustand
-npm install zustand
-
-# Expo Router (tabs 템플릿 미사용 시)
-npx expo install expo-router react-native-screens expo-linking expo-constants expo-status-bar
+rm -rf node_modules
+npm install
 ```
 
-### 3. NativeWind 초기화
+### 4. Expo Router 및 플랫폼 의존성 설치
 
 ```bash
-npx tailwindcss init
+npx expo install expo-router react-native-screens expo-linking expo-constants react-native-safe-area-context react-native-reanimated react-native-gesture-handler react-native-web react-dom @expo/metro-runtime expo-image
 ```
 
-### 4. 환경 변수
+### 5. NativeWind, TanStack Query, Zustand 설치
 
 ```bash
-cp .env
+npm install nativewind @tanstack/react-query zustand
+npm install --save-dev tailwindcss@3 babel-preset-expo
+```
+
+### 6. React / React Native peer 의존성 확인
+
+```bash
+npx expo install react react-native
+```
+
+### 7. 환경 변수 설정
+
+```bash
+cp .env.example .env
 # .env 파일에 EXPO_PUBLIC_TMDB_API_KEY 값 입력
 ```
 
-### 5. 개발 서버 실행
+### 8. 타입 검사
+
+```bash
+npx tsc --noEmit
+```
+
+### 9. 웹 빌드 검증
+
+```bash
+npx expo export --platform web
+```
+
+### 10. 개발 서버 실행
 
 ```bash
 # 모바일 (Expo Go)
@@ -77,9 +96,21 @@ npx expo start
 
 # 웹
 npx expo start --web
+
+# 캐시 초기화 후 실행 (NativeWind 설정 변경 시)
+npx expo start --clear
 ```
 
-### 6. Android APK 빌드 (EAS)
+### NativeWind 웹 다크모드 오류 수정
+
+웹에서 `Cannot manually set color scheme, as dark mode is type 'media'` 오류 발생 시:
+
+- `tailwind.config.js`에 `darkMode: 'class'` 추가
+- Metro 캐시 초기화 후 재시작: `npx expo start --clear --web`
+
+---
+
+## 예정 — Android APK 빌드 (EAS)
 
 ```bash
 # EAS CLI 설치 (전역)
@@ -89,7 +120,7 @@ npm install -g eas-cli
 eas login
 eas build:configure
 
-# APK 빌드 (preview 프로필)
+# APK 빌드 (preview 프로필 — eas.json에 buildType: apk 설정됨)
 eas build --platform android --profile preview
 ```
 
@@ -98,6 +129,37 @@ eas build --platform android --profile preview
 ```bash
 npx expo prebuild --platform android
 cd android && ./gradlew assembleRelease
+```
+
+---
+
+## 생성된 주요 파일 구조
+
+```
+movie-collection/
+├── app/
+│   ├── _layout.tsx
+│   ├── (tabs)/
+│   │   ├── _layout.tsx
+│   │   ├── index.tsx          # 상영 중 (now_playing)
+│   │   └── favorites.tsx
+│   └── movie/[id].tsx
+├── src/
+│   ├── components/ui/
+│   ├── components/layout/
+│   ├── components/movie/
+│   ├── hooks/
+│   ├── services/tmdb.ts
+│   ├── stores/uiStore.ts
+│   ├── lib/queryClient.ts
+│   ├── types/movie.ts
+│   └── constants/config.ts
+├── babel.config.js
+├── metro.config.js
+├── tailwind.config.js
+├── global.css
+├── eas.json
+└── .env.example
 ```
 
 ---
