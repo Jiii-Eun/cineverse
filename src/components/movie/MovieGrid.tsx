@@ -29,11 +29,8 @@ interface MovieGridProps {
 
 const GRID_GAP = 12;
 
-/** 화면 확대·열 증가 */
+/** 열 증가·화면 확대 시에만 재배치 애니메이션 */
 const GRID_LAYOUT_EXPAND = Layout.duration(360).springify().damping(20).stiffness(120);
-
-/** 화면 축소·열 감소 — 빠르게 스냅 */
-const GRID_LAYOUT_COLLAPSE = Layout.duration(120).springify().damping(28).stiffness(220);
 
 function calcItemWidth(
   containerWidth: number,
@@ -48,17 +45,29 @@ function calcItemWidth(
   return Math.floor(available / numColumns);
 }
 
-function useGridLayoutAnimation(numColumns: number) {
+/**
+ * 축소·열 감소 시 애니메이션 없음 — Reanimated width 보간이 flex-wrap을 깨뜨림
+ */
+function useGridLayoutAnimation(numColumns: number, containerWidth: number) {
   const prevNumColumnsRef = useRef(numColumns);
+  const prevContainerWidthRef = useRef(0);
+
   const colsChanged = prevNumColumnsRef.current !== numColumns;
-  const isCollapsing = colsChanged && numColumns < prevNumColumnsRef.current;
+  const isExpanding = colsChanged && numColumns > prevNumColumnsRef.current;
+  const isContainerShrinking =
+    containerWidth > 0 &&
+    prevContainerWidthRef.current > 0 &&
+    containerWidth < prevContainerWidthRef.current;
 
   useLayoutEffect(() => {
     prevNumColumnsRef.current = numColumns;
-  }, [numColumns]);
+    if (containerWidth > 0) {
+      prevContainerWidthRef.current = containerWidth;
+    }
+  }, [numColumns, containerWidth]);
 
-  if (!colsChanged) return undefined;
-  return isCollapsing ? GRID_LAYOUT_COLLAPSE : GRID_LAYOUT_EXPAND;
+  if (isContainerShrinking || !isExpanding) return undefined;
+  return GRID_LAYOUT_EXPAND;
 }
 
 function useStableGridColumns(viewportWidth: number, containerWidth: number) {
@@ -86,22 +95,29 @@ function GridMovieItem({
   onRemoveFromList?: (movieId: number) => void;
   isRemovingFromList?: boolean;
 }) {
+  const style = {
+    width: itemWidth,
+    flexGrow: 0,
+    flexShrink: 0,
+    minWidth: 0,
+  };
+
+  const content = (
+    <MovieCard
+      movie={movie}
+      listId={listId}
+      onRemoveFromList={onRemoveFromList}
+      isRemovingFromList={isRemovingFromList}
+    />
+  );
+
+  if (!layoutAnimation) {
+    return <View style={style}>{content}</View>;
+  }
+
   return (
-    <Animated.View
-      layout={layoutAnimation}
-      style={{
-        width: itemWidth,
-        flexGrow: 0,
-        flexShrink: 0,
-        minWidth: 0,
-      }}
-    >
-      <MovieCard
-        movie={movie}
-        listId={listId}
-        onRemoveFromList={onRemoveFromList}
-        isRemovingFromList={isRemovingFromList}
-      />
+    <Animated.View layout={layoutAnimation} style={style}>
+      {content}
     </Animated.View>
   );
 }
@@ -123,7 +139,7 @@ function MovieGridContent({
   onRemoveFromList?: (movieId: number) => void;
   isRemovingFromList?: boolean;
 }) {
-  const layoutAnimation = useGridLayoutAnimation(numColumns);
+  const layoutAnimation = useGridLayoutAnimation(numColumns, containerWidth);
   const itemWidth = calcItemWidth(
     containerWidth,
     horizontalPadding,
@@ -176,7 +192,7 @@ export function MovieGrid({
   const horizontalPadding = embedded ? 4 : 16;
 
   const numColumns = useStableGridColumns(viewportWidth, containerWidth);
-  const layoutAnimation = useGridLayoutAnimation(numColumns);
+  const layoutAnimation = useGridLayoutAnimation(numColumns, containerWidth);
   const itemWidth = calcItemWidth(
     containerWidth,
     horizontalPadding,
@@ -184,7 +200,7 @@ export function MovieGrid({
   );
 
   const onContainerLayout = useCallback((event: LayoutChangeEvent) => {
-    const nextWidth = event.nativeEvent.layout.width;
+    const nextWidth = Math.round(event.nativeEvent.layout.width);
     setContainerWidth((prev) => (prev === nextWidth ? prev : nextWidth));
   }, []);
 

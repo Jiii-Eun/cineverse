@@ -13,7 +13,7 @@ export function LogoHomeLink({ className = '' }: LogoHomeLinkProps) {
   if (Platform.OS === 'web') {
     return (
       <Pressable onPress={() => router.push('/')} className={className}>
-        <h1 className="m-0 cursor-pointer bg-transparent text-xl font-bold tracking-widest text-foreground">
+        <h1 className="m-0 block cursor-pointer bg-transparent text-lg font-bold tracking-wider text-foreground md:text-xl md:tracking-widest">
           CINEVERSE
         </h1>
       </Pressable>
@@ -23,7 +23,7 @@ export function LogoHomeLink({ className = '' }: LogoHomeLinkProps) {
   return (
     <Pressable
       onPress={() => router.push('/')}
-      className={className}
+      className={`items-center ${className}`}
       accessibilityRole="header"
       accessibilityLabel="CINEVERSE 홈으로 이동"
     >

@@ -35,7 +35,7 @@ const destructiveStyle = {
 
 const sizeClasses: Record<NonNullable<ButtonProps["size"]>, string> = {
   default: "min-h-[44px] px-4 py-3",
-  compact: "min-h-7 px-3 py-2",
+  compact: "min-h-7 px-2.5 py-1.5 md:px-3 md:py-2",
 };
 
 export function Button({
@@ -66,7 +66,7 @@ export function Button({
       {...props}
     >
       <Text
-        className={`font-semibold ${size === "compact" ? "text-sm" : ""} ${labelClasses[variant]}`}
+        className={`font-semibold ${size === "compact" ? "text-xs md:text-sm" : "text-sm md:text-base"} ${labelClasses[variant]}`}
         style={
           variant === "destructive" ? { color: destructiveColor } : undefined
         }

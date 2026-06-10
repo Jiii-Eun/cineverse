@@ -101,7 +101,7 @@ export default function ExploreScreen() {
               placeholder="영화 검색..."
               placeholderTextColor="#6B7280"
               returnKeyType="search"
-              className="search-input min-h-[44px] flex-1 px-3 text-base text-foreground outline-none focus:outline-none"
+              className="search-input min-h-[44px] flex-1 px-3 text-sm text-foreground outline-none focus:outline-none md:text-base"
             />
           </View>
           {query.length > 0 ? (

@@ -5,11 +5,11 @@ interface TextProps extends RNTextProps {
 }
 
 const variantClasses: Record<NonNullable<TextProps['variant']>, string> = {
-  logo: 'text-xl font-bold tracking-widest text-foreground',
-  title: 'text-2xl font-bold text-foreground',
-  subtitle: 'text-lg font-semibold text-foreground',
-  body: 'text-base text-foreground',
-  caption: 'text-sm text-muted',
+  logo: 'text-lg font-bold tracking-wider text-foreground md:text-xl md:tracking-widest',
+  title: 'text-xl font-bold text-foreground md:text-2xl',
+  subtitle: 'text-base font-semibold text-foreground md:text-lg',
+  body: 'text-sm text-foreground md:text-base',
+  caption: 'text-xs text-muted md:text-sm',
 };
 
 export function Text({

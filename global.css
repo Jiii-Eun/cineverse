@@ -161,3 +161,13 @@
     overflow-wrap: anywhere;
   }
 }
+
+/* RN Web 하단 탭 */
+a[role='tab'] {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}

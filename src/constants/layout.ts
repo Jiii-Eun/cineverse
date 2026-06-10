@@ -1,5 +1,23 @@
-/** app/(tabs)/_layout.tsx tabBarStyle.height 와 동일하게 유지 */
-export const TAB_BAR_HEIGHT = 64;
+import { Platform } from 'react-native';
+
+/** TabBarIcon 래퍼(28) + 라벨 margin(2) + lineHeight(14) — app/(tabs)/_layout.tsx 와 동기화 */
+export const TAB_BAR_ITEM_CONTENT_HEIGHT = 44;
+
+/** @deprecated TAB_BAR_ITEM_CONTENT_HEIGHT 사용 */
+export const TAB_BAR_CONTENT_HEIGHT = TAB_BAR_ITEM_CONTENT_HEIGHT;
+
+/** tabBarStyle paddingTop / paddingBottom (웹·네이티브 동일 값) */
+export const TAB_BAR_VERTICAL_PADDING = 12;
+
+export function getTabBarTotalHeight(bottomInset = 0) {
+  const safeBottom = Platform.OS === 'web' ? 0 : bottomInset;
+  return (
+    TAB_BAR_ITEM_CONTENT_HEIGHT + TAB_BAR_VERTICAL_PADDING * 2 + safeBottom
+  );
+}
+
+/** @deprecated TAB_BAR_CONTENT_HEIGHT + safe area bottom 과 동기화 필요 */
+export const TAB_BAR_HEIGHT = TAB_BAR_CONTENT_HEIGHT;
 
 /** HomeHeader / AppHeader / Stack nav 공통 높이 */
 export const APP_HEADER_HEIGHT = 68;

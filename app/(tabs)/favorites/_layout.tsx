@@ -58,9 +58,9 @@ export default function FavoritesLayout() {
               }`}
             >
               <Text
-                className={
+                className={`text-xs md:text-sm ${
                   active ? 'font-semibold text-primary' : 'text-muted'
-                }
+                }`}
               >
                 {tab.label}
               </Text>

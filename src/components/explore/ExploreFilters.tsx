@@ -41,7 +41,7 @@ function FilterTabButton({
   return (
     <Pressable
       onPress={onPress}
-      className={`min-h-[40px] flex-row items-center gap-1.5 rounded-button border px-3 ${
+      className={`min-h-[34px] flex-row items-center gap-1 rounded-button border px-2.5 md:min-h-[40px] md:gap-1.5 md:px-3 ${
         active
           ? 'border-primary bg-primary/15'
           : 'border-white/10 bg-elevated'
@@ -49,11 +49,11 @@ function FilterTabButton({
     >
       <Ionicons
         name="options-outline"
-        size={14}
+        size={13}
         color={active ? '#8B5CF6' : '#9CA3AF'}
       />
       <Text
-        className={`text-sm font-medium ${
+        className={`text-xs font-medium md:text-sm ${
           active ? 'text-primary' : 'text-muted'
         }`}
       >
@@ -78,14 +78,14 @@ function FilterOptionPill({
   return (
     <Pressable
       onPress={onPress}
-      className={`min-h-[36px] items-center justify-center rounded-chip border px-3 ${
+      className={`min-h-[32px] items-center justify-center rounded-chip border px-2.5 md:min-h-[36px] md:px-3 ${
         active
           ? 'border-primary bg-primary/20'
           : 'border-white/10 bg-surface'
       }`}
     >
       <Text
-        className={`text-sm ${active ? 'font-semibold text-primary' : 'text-muted'}`}
+        className={`text-xs md:text-sm ${active ? 'font-semibold text-primary' : 'text-muted'}`}
       >
         {label}
       </Text>
@@ -171,6 +171,7 @@ export function ExploreFilters({
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerClassName="gap-2 px-4 md:px-8"
+        className="max-w-full"
       >
         {EXPLORE_FILTER_TABS.map((tab) => (
           <FilterTabButton
@@ -187,7 +188,8 @@ export function ExploreFilters({
         ))}
       </ScrollView>
 
-      <View className="mx-4 mt-3 rounded-card border border-white/10 bg-surface/60 p-4 md:mx-8">
+      <View className="mt-3 w-full px-4 md:px-8">
+        <View className="w-full rounded-card border border-white/10 bg-surface/60 p-3 md:p-4">
         {showGenre ? (
           <View className={showYear || showRating ? 'mb-4' : ''}>
             <Text variant="caption" className="mb-2 font-semibold text-foreground">
@@ -272,6 +274,7 @@ export function ExploreFilters({
             </View>
           </View>
         ) : null}
+        </View>
       </View>
     </View>
   );
