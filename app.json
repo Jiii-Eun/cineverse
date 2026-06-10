@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "CINEVERSE",
-    "slug": "movie-collection",
+    "slug": "cineverse",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "movie-collection",
+    "scheme": "cineverse",
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true

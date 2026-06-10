@@ -1,8 +1,8 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { type ReactNode } from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { DESKTOP_SIDEBAR_WIDTH } from '@/constants/layout';
+import { SidebarToggleButton } from '@/components/layout/SidebarToggleButton';
 
 interface CategoryAsideProps {
   children: ReactNode;
@@ -22,14 +22,10 @@ export function CategoryAside({ children, onClose }: CategoryAsideProps) {
     >
       {onClose ? (
         <View className="shrink-0 flex-row justify-end px-2 pb-1 pt-2">
-          <Pressable
-            onPress={onClose}
-            className="min-h-[36px] min-w-[36px] items-center justify-center rounded-button active:opacity-70"
-            accessibilityRole="button"
+          <SidebarToggleButton
             accessibilityLabel="카테고리 닫기"
-          >
-            <MaterialIcons name="view-sidebar" size={20} color="#FFFFFF" />
-          </Pressable>
+            onPress={onClose}
+          />
         </View>
       ) : null}
       <View className="aside-panel-scroll min-h-0 flex-1">{children}</View>

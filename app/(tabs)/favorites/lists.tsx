@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Alert, ScrollView, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { ScrollView, TextInput, View } from 'react-native';
 
 import { FolderListCard } from '@/components/movie/FolderListCard';
 import { Screen } from '@/components/layout/Screen';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { LoadingState } from '@/components/ui/LoadingState';
@@ -11,24 +11,28 @@ import { Button } from '@/components/ui/Button';
 import {
   useAccountLists,
   useCreateList,
-  useUpdateList,
+  useDeleteList,
 } from '@/hooks/useAccountLists';
 import { useIsLoggedIn } from '@/stores/authStore';
 import { useToastStore } from '@/stores/toastStore';
 
 const INPUT_CLASS =
-  'min-h-[44px] rounded-button border border-primary/20 px-4 text-primary';
+  'min-h-[44px] rounded-button border border-primary/20 px-4';
+const INPUT_TEXT_STYLE = { color: '#FFFFFF' } as const;
 
 export default function CustomListsScreen() {
-  const router = useRouter();
   const isLoggedIn = useIsLoggedIn();
   const showToast = useToastStore((s) => s.show);
   const { data, isLoading, isError, error, refetch } = useAccountLists();
   const createList = useCreateList();
-  const updateList = useUpdateList();
+  const deleteList = useDeleteList();
   const [newListName, setNewListName] = useState('');
   const [newListDescription, setNewListDescription] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   const resetCreateForm = () => {
     setNewListName('');
@@ -40,33 +44,32 @@ export default function CustomListsScreen() {
     const name = newListName.trim();
     if (!name) return;
     try {
-      const result = await createList.mutateAsync({
+      await createList.mutateAsync({
         name,
         description: newListDescription.trim(),
       });
       resetCreateForm();
-      Alert.alert('완료', '폴더가 생성되었습니다.');
-      router.push(`/list/${result.list_id}`);
+      showToast('폴더가 생성되었습니다.');
     } catch (e) {
-      Alert.alert('오류', e instanceof Error ? e.message : '폴더 생성 실패');
+      showToast(e instanceof Error ? e.message : '폴더 생성에 실패했습니다.');
     }
   };
 
-  const handleSaveEdit = async ({
-    listId,
-    name,
-    description,
-  }: {
-    listId: number;
-    name: string;
-    description: string;
-  }) => {
+  const handleDeletePress = (listId: number, listName: string) => {
+    setDeleteTarget({ id: listId, name: listName });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
     try {
-      await updateList.mutateAsync({ listId, name, description });
-      showToast('폴더 정보가 수정되었습니다.');
+      await deleteList.mutateAsync(deleteTarget.id);
+      showToast('폴더가 삭제되었습니다.');
+      setDeleteTarget(null);
     } catch (e) {
-      showToast(e instanceof Error ? e.message : '폴더 수정에 실패했습니다.');
-      throw e;
+      showToast(
+        e instanceof Error ? e.message : '폴더 삭제에 실패했습니다.',
+      );
     }
   };
 
@@ -102,6 +105,7 @@ export default function CustomListsScreen() {
               placeholder="폴더명"
               placeholderTextColor="#6B7280"
               className={INPUT_CLASS}
+              style={INPUT_TEXT_STYLE}
             />
             <TextInput
               value={newListDescription}
@@ -110,6 +114,7 @@ export default function CustomListsScreen() {
               placeholderTextColor="#6B7280"
               multiline
               className={`${INPUT_CLASS} min-h-[72px] py-3`}
+              style={INPUT_TEXT_STYLE}
             />
             <View className="flex-row items-center gap-3">
               <Button
@@ -137,11 +142,32 @@ export default function CustomListsScreen() {
           <FolderListCard
             key={list.id}
             list={list}
-            isSaving={updateList.isPending}
-            onSave={handleSaveEdit}
+            isDeleting={deleteList.isPending}
+            onDelete={(listId) => handleDeletePress(listId, list.name)}
           />
         ))}
       </ScrollView>
+
+      <ConfirmModal
+        visible={deleteTarget != null}
+        title="폴더 삭제"
+        message={
+          deleteTarget
+            ? `"${deleteTarget.name}" 폴더를 삭제할까요? 이 작업은 되돌릴 수 없습니다.`
+            : ''
+        }
+        confirmLabel="삭제"
+        destructive
+        loading={deleteList.isPending}
+        onConfirm={() => {
+          void handleConfirmDelete();
+        }}
+        onCancel={() => {
+          if (!deleteList.isPending) {
+            setDeleteTarget(null);
+          }
+        }}
+      />
     </Screen>
   );
 }

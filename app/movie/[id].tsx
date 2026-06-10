@@ -150,7 +150,7 @@ export default function MovieDetailScreen() {
         </View>
 
         <View className="gap-6 px-4 md:px-8">
-          <View className="flex-row justify-center gap-6 py-2">
+          <View className="flex-row items-end justify-center gap-6 py-2">
             <View className="items-center gap-1">
               <View className="h-12 w-12 items-center justify-center rounded-full bg-elevated">
                 <WatchlistHeart movieId={movie.id} inline />

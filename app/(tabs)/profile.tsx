@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -6,8 +7,19 @@ import { Screen } from '@/components/layout/Screen';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
+import { useAccountLists } from '@/hooks/useAccountLists';
+import { useGenres } from '@/hooks/useGenres';
+import {
+  calculateAverageRating,
+  useRatedMovies,
+} from '@/hooks/useRatedMovies';
 import { useAuthStore, useIsLoggedIn } from '@/stores/authStore';
+import { useUiStore } from '@/stores/uiStore';
 import { useWatchlist } from '@/hooks/useWatchlist';
+import { formatDisplayRating } from '@/utils/starRating';
+import { calculateTopGenres } from '@/utils/genreStats';
+import { PreferredGenresCard } from '@/components/profile/PreferredGenresCard';
+import { ProfileStatCard } from '@/components/profile/ProfileStatCard';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -15,6 +27,40 @@ export default function ProfileScreen() {
   const account = useAuthStore((s) => s.account);
   const logout = useAuthStore((s) => s.logout);
   const { data: watchlist } = useWatchlist();
+  const { data: ratedMovies } = useRatedMovies();
+  const { data: accountLists } = useAccountLists();
+  useGenres();
+  const genres = useUiStore((s) => s.genres);
+
+  const watchedCount = watchlist?.results.length ?? 0;
+
+  const averageRating = useMemo(() => {
+    const ratings =
+      ratedMovies?.results
+        .map((movie) => movie.rating)
+        .filter((rating) => rating > 0) ?? [];
+    const average = calculateAverageRating(ratings);
+    return average != null ? formatDisplayRating(average) : '—';
+  }, [ratedMovies]);
+
+  const folderCount = accountLists?.results.length ?? 0;
+
+  const folderMovieCount = useMemo(
+    () =>
+      accountLists?.results.reduce(
+        (total, list) => total + list.item_count,
+        0,
+      ) ?? 0,
+    [accountLists],
+  );
+
+  const topGenres = useMemo(() => {
+    const movies = [
+      ...(watchlist?.results ?? []),
+      ...(ratedMovies?.results ?? []),
+    ];
+    return calculateTopGenres(movies, 10);
+  }, [watchlist, ratedMovies]);
 
   if (!isLoggedIn) {
     return (
@@ -33,8 +79,6 @@ export default function ProfileScreen() {
       </Screen>
     );
   }
-
-  const watchedCount = watchlist?.results.length ?? 0;
 
   return (
     <Screen>
@@ -63,31 +107,24 @@ export default function ProfileScreen() {
         </LinearGradient>
 
         <View className="flex-row gap-3">
-          {[
-            { label: '찜한 영화', value: String(watchedCount) },
-            { label: '평균 평점', value: '—' },
-            { label: '목록', value: '—' },
-          ].map((stat) => (
-            <View
-              key={stat.label}
-              className="flex-1 items-center rounded-card bg-card p-4"
-            >
-              <Text className="text-xl font-bold text-primary">{stat.value}</Text>
-              <Text variant="caption" className="mt-1 text-center">
-                {stat.label}
-              </Text>
-            </View>
-          ))}
+          <ProfileStatCard
+            label="찜한 영화"
+            value={String(watchedCount)}
+            href="/favorites/watchlist"
+          />
+          <ProfileStatCard
+            label="평균 평점"
+            value={averageRating}
+            href="/favorites/rated"
+          />
+          <ProfileStatCard
+            label="파일 / 보관한 영화"
+            value={`${folderCount} / ${folderMovieCount}`}
+            href="/favorites/lists"
+          />
         </View>
 
-        <View className="rounded-card bg-card p-4">
-          <Text variant="subtitle" className="mb-3">
-            선호 장르
-          </Text>
-          <Text variant="caption">
-            시청 기록이 쌓이면 장르 분포가 표시됩니다.
-          </Text>
-        </View>
+        <PreferredGenresCard topGenres={topGenres} genres={genres} />
 
         <Button label="로그아웃" variant="outline" onPress={() => logout()} />
       </ScrollView>

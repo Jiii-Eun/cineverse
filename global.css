@@ -22,19 +22,6 @@
 }
 
 @layer components {
-  .movie-grid {
-    display: grid;
-    gap: 12px;
-    overflow: visible;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (min-width: 768px) {
-    .movie-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-
   .movie-card-overlay {
     position: absolute;
     inset: 0;
@@ -50,7 +37,7 @@
 
   .movie-card-surface {
     transition:
-      transform 0.2s ease,
+      transform 0.12s ease,
       box-shadow 0.2s ease;
   }
 
@@ -87,6 +74,10 @@
   }
 
   .movie-card-hover-actions > * {
+    pointer-events: auto;
+  }
+
+  .movie-card-overlay-top-action > * {
     pointer-events: auto;
   }
 
@@ -140,6 +131,23 @@
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
+  }
+
+  .movie-grid-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .movie-grid-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+    background: transparent;
   }
 
   .movie-card-overview-clamp-3 {

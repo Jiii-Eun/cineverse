@@ -1,4 +1,3 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Modal, Pressable, View, useWindowDimensions } from 'react-native';
 import Animated, {
@@ -11,6 +10,7 @@ import Animated, {
 
 import { CategoryAside } from '@/components/layout/CategoryAside';
 import { CategorySidebar } from '@/components/layout/CategorySidebar';
+import { SidebarToggleButton } from '@/components/layout/SidebarToggleButton';
 import {
   DESKTOP_ASIDE_CLOSE_DURATION,
   DESKTOP_ASIDE_OPEN_DURATION,
@@ -163,14 +163,12 @@ export function ContentLayout({ children }: ContentLayoutProps) {
 
       <View className="relative min-w-0 flex-1">
         {isDesktop && !desktopAsideOpen ? (
-          <Pressable
-            onPress={openDesktopAside}
-            className="absolute left-3 top-3 z-20 min-h-[40px] min-w-[40px] items-center justify-center rounded-button border border-white/10 bg-surface active:opacity-80"
-            accessibilityRole="button"
+          <SidebarToggleButton
             accessibilityLabel="카테고리 열기"
-          >
-            <MaterialIcons name="view-sidebar" size={20} color="#FFFFFF" />
-          </Pressable>
+            variant="expand"
+            onPress={openDesktopAside}
+            className="absolute left-3 top-3 z-20"
+          />
         ) : null}
         {children}
       </View>

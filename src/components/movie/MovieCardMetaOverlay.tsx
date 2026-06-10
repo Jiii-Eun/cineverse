@@ -7,12 +7,14 @@ interface MovieCardMetaOverlayProps {
   children: ReactNode;
   compact?: boolean;
   movieId?: number;
+  topRightAction?: ReactNode;
 }
 
 export function MovieCardMetaOverlay({
   children,
   compact = false,
   movieId,
+  topRightAction,
 }: MovieCardMetaOverlayProps) {
   return (
     <View
@@ -34,6 +36,20 @@ export function MovieCardMetaOverlay({
             }
       }
     >
+      {topRightAction ? (
+        <View
+          className="movie-card-overlay-top-action"
+          style={{
+            position: 'absolute',
+            top: 14,
+            right: 14,
+            zIndex: 20,
+            pointerEvents: 'box-none',
+          }}
+        >
+          {topRightAction}
+        </View>
+      ) : null}
       <View className="min-h-0 w-full flex-1 items-center justify-center">
         {children}
       </View>

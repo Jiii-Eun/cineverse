@@ -16,7 +16,7 @@ mkdir -p .cursor/rules docs
 
 | 파일                                 | 설명                               |
 | ------------------------------------ | ---------------------------------- |
-| `.cursor/rules/movie-collection.mdc` | 프로젝트 통합 Cursor 룰 (6개 섹션) |
+| `.cursor/rules/cineverse.mdc` | 프로젝트 통합 Cursor 룰 (6개 섹션) |
 | `docs/setup-commands.md`             | 명령어 사용 기록 (이 파일)         |
 
 ---
@@ -136,7 +136,7 @@ cd android && ./gradlew assembleRelease
 ## 생성된 주요 파일 구조
 
 ```
-movie-collection/
+cineverse/
 ├── app/
 │   ├── _layout.tsx
 │   ├── (tabs)/

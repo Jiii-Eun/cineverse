@@ -111,11 +111,13 @@ export function useToggleWatchlist() {
         );
       }
     },
-    onSettled: (_data, _error, { movieId }) => {
-      queryClient.invalidateQueries({ queryKey: ['account', 'favorites'] });
-      queryClient.invalidateQueries({
-        queryKey: ['movies', 'account_states', movieId],
-      });
+    onSettled: (_data, error, { movieId }) => {
+      if (error) {
+        queryClient.invalidateQueries({ queryKey: ['account', 'favorites'] });
+        queryClient.invalidateQueries({
+          queryKey: ['movies', 'account_states', movieId],
+        });
+      }
     },
   });
 }

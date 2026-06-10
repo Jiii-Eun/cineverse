@@ -13,12 +13,14 @@ interface WatchlistHeartProps {
   movieId: number;
   inline?: boolean;
   pinned?: boolean;
+  hero?: boolean;
 }
 
 export function WatchlistHeart({
   movieId,
   inline = false,
   pinned = false,
+  hero = false,
 }: WatchlistHeartProps) {
   const serverFavorite = useIsInWatchlistResolved(movieId, {
     preferAccountStates: inline,
@@ -62,14 +64,16 @@ export function WatchlistHeart({
       className={
         inline
           ? 'items-center justify-center'
-          : pinned
-            ? 'min-h-[36px] min-w-[36px] items-center justify-center rounded-full bg-black/50'
-            : 'absolute right-2 top-2 z-10 min-h-[36px] min-w-[36px] items-center justify-center rounded-full bg-black/50'
+          : hero
+            ? 'min-h-[40px] min-w-[40px] items-center justify-center rounded-button bg-elevated'
+            : pinned
+              ? 'min-h-[36px] min-w-[36px] items-center justify-center rounded-full bg-black/50'
+              : 'absolute right-2 top-2 z-10 min-h-[36px] min-w-[36px] items-center justify-center rounded-full bg-black/50'
       }
     >
       <Ionicons
         name={isFavorite ? 'heart' : 'heart-outline'}
-        size={inline ? 22 : 18}
+        size={inline || hero ? 22 : 18}
         color={iconColor}
       />
     </Pressable>

@@ -1,4 +1,4 @@
-import type { PaginatedMovies } from '@/types/movie';
+import type { PaginatedMovies, PaginatedRatedMovies } from '@/types/movie';
 
 import { isPaginatedMovies, tmdbFetch, tmdbPost } from './client';
 
@@ -45,6 +45,45 @@ export async function fetchAllFavoriteMovies(
   const otherPages = await Promise.all(
     Array.from({ length: firstPage.total_pages - 1 }, (_, index) =>
       fetchFavoriteMovies(accountId, sessionId, index + 2),
+    ),
+  );
+
+  return {
+    ...firstPage,
+    results: [
+      ...firstPage.results,
+      ...otherPages.flatMap((page) => page.results),
+    ],
+  };
+}
+
+export async function fetchRatedMovies(
+  accountId: number,
+  sessionId: string,
+  page = 1,
+): Promise<PaginatedRatedMovies> {
+  const data = await tmdbFetch<PaginatedRatedMovies>({
+    path: `/account/${accountId}/rated/movies`,
+    params: { page },
+    sessionId,
+  });
+
+  return data;
+}
+
+export async function fetchAllRatedMovies(
+  accountId: number,
+  sessionId: string,
+): Promise<PaginatedRatedMovies> {
+  const firstPage = await fetchRatedMovies(accountId, sessionId, 1);
+
+  if (firstPage.total_pages <= 1) {
+    return firstPage;
+  }
+
+  const otherPages = await Promise.all(
+    Array.from({ length: firstPage.total_pages - 1 }, (_, index) =>
+      fetchRatedMovies(accountId, sessionId, index + 2),
     ),
   );
 

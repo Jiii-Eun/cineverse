@@ -59,20 +59,26 @@ export async function tmdbPost<T>(
 
 export async function tmdbDelete<T>(
   options: BuildUrlOptions,
-  body: Record<string, unknown>,
+  body?: Record<string, unknown>,
 ): Promise<T> {
   const url = buildUrl(options);
+  const hasBody = body !== undefined && Object.keys(body).length > 0;
   const response = await fetch(url, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    headers: hasBody ? { 'Content-Type': 'application/json' } : undefined,
+    body: hasBody ? JSON.stringify(body) : undefined,
   });
 
   if (!response.ok) {
     throw new Error(await readTmdbErrorMessage(response));
   }
 
-  return (await response.json()) as T;
+  const text = await response.text();
+  if (!text) {
+    return { success: true } as T;
+  }
+
+  return JSON.parse(text) as T;
 }
 
 export function buildUrl({

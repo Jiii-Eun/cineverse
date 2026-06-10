@@ -8,20 +8,39 @@ import { useIsLoggedIn } from '@/stores/authStore';
 const SUB_TABS = [
   { href: '/favorites/watchlist', label: '찜목록' },
   { href: '/favorites/lists', label: '폴더' },
+  { href: '/favorites/rated', label: '리뷰한 영화' },
 ] as const;
+
+function getHeader(pathname: string, isLoggedIn: boolean) {
+  if (pathname.includes('/favorites/watchlist')) {
+    return {
+      title: '찜목록',
+      subtitle: isLoggedIn
+        ? '보고 싶은 영화를 하트로 모아보세요'
+        : '로그인 후 이용할 수 있습니다',
+    };
+  }
+  if (pathname.includes('/favorites/rated')) {
+    return {
+      title: '리뷰한 영화',
+      subtitle: isLoggedIn
+        ? '별점을 남긴 영화 목록입니다'
+        : '로그인 후 이용할 수 있습니다',
+    };
+  }
+  return {
+    title: '폴더',
+    subtitle: isLoggedIn
+      ? '나만의 영화 폴더를 만들고 관리하세요'
+      : '로그인 후 이용할 수 있습니다',
+  };
+}
 
 export default function FavoritesLayout() {
   const pathname = usePathname();
   const router = useRouter();
   const isLoggedIn = useIsLoggedIn();
-  const isWatchlist = pathname.includes('/favorites/watchlist');
-
-  const title = isWatchlist ? '찜목록' : '폴더';
-  const subtitle = !isLoggedIn
-    ? '로그인 후 이용할 수 있습니다'
-    : isWatchlist
-      ? '찜한 영화를 폴더로 옮길 수 있습니다'
-      : '나만의 영화 폴더를 만들고 관리하세요';
+  const { title, subtitle } = getHeader(pathname, isLoggedIn);
 
   return (
     <View className="flex-1 bg-background">

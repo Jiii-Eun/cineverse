@@ -36,10 +36,10 @@ export function useUserMovieRating(movieId: number) {
 
 export function useRateMovie(movieId: number) {
   const queryClient = useQueryClient();
-  const sessionId = useAuthStore((s) => s.sessionId);
 
   return useMutation({
     mutationFn: async (value: number) => {
+      const sessionId = useAuthStore.getState().sessionId;
       if (!sessionId) {
         throw new Error('로그인이 필요합니다.');
       }
@@ -65,18 +65,27 @@ export function useRateMovie(movieId: number) {
         queryClient.setQueryData(accountStatesKey(movieId), context.previous);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: accountStatesKey(movieId) });
+    onSuccess: (_data, value) => {
+      queryClient.setQueryData<MovieAccountStatesResponse>(
+        accountStatesKey(movieId),
+        (old) => ({
+          id: old?.id ?? movieId,
+          favorite: old?.favorite ?? false,
+          watchlist: old?.watchlist ?? false,
+          rated: { value },
+        }),
+      );
+      queryClient.invalidateQueries({ queryKey: ['account', 'rated_movies'] });
     },
   });
 }
 
 export function useDeleteMovieRating(movieId: number) {
   const queryClient = useQueryClient();
-  const sessionId = useAuthStore((s) => s.sessionId);
 
   return useMutation({
     mutationFn: async () => {
+      const sessionId = useAuthStore.getState().sessionId;
       if (!sessionId) {
         throw new Error('로그인이 필요합니다.');
       }
@@ -102,8 +111,17 @@ export function useDeleteMovieRating(movieId: number) {
         queryClient.setQueryData(accountStatesKey(movieId), context.previous);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: accountStatesKey(movieId) });
+    onSuccess: () => {
+      queryClient.setQueryData<MovieAccountStatesResponse>(
+        accountStatesKey(movieId),
+        (old) => ({
+          id: old?.id ?? movieId,
+          favorite: old?.favorite ?? false,
+          watchlist: old?.watchlist ?? false,
+          rated: {},
+        }),
+      );
+      queryClient.invalidateQueries({ queryKey: ['account', 'rated_movies'] });
     },
   });
 }

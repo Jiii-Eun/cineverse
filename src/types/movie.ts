@@ -17,6 +17,17 @@ export interface PaginatedMovies {
   total_results: number;
 }
 
+export interface RatedMovie extends Movie {
+  rating: number;
+}
+
+export interface PaginatedRatedMovies {
+  page: number;
+  results: RatedMovie[];
+  total_pages: number;
+  total_results: number;
+}
+
 export type NowPlayingResponse = PaginatedMovies;
 
 export interface Genre {

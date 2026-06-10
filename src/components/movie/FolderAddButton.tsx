@@ -11,12 +11,20 @@ import { guardLogin } from '@/utils/requireLogin';
 interface FolderAddButtonProps {
   movieId: number;
   inline?: boolean;
+  hero?: boolean;
 }
 
-export function FolderAddButton({ movieId, inline = false }: FolderAddButtonProps) {
+export function FolderAddButton({
+  movieId,
+  inline = false,
+  hero = false,
+}: FolderAddButtonProps) {
   const [visible, setVisible] = useState(false);
   const { data: lists } = useAccountLists();
-  const { data: isInAnyList = false } = useIsMovieInAnyList(movieId);
+  const trackListStatus = hero || inline || visible;
+  const { data: isInAnyList = false } = useIsMovieInAnyList(movieId, {
+    enabled: trackListStatus,
+  });
   const showToast = useToastStore((s) => s.show);
 
   const handlePress = () => {
@@ -30,19 +38,40 @@ export function FolderAddButton({ movieId, inline = false }: FolderAddButtonProp
     setVisible(true);
   };
 
-  const iconColor = inline
-    ? '#8B5CF6'
-    : isInAnyList
-      ? '#8B5CF6'
-      : '#FFFFFF';
+  const iconColor = isInAnyList ? '#8B5CF6' : '#FFFFFF';
 
   const icon = (
     <Ionicons
       name={isInAnyList ? 'bookmark' : 'bookmark-outline'}
-      size={inline ? 22 : 18}
+      size={inline || hero ? 22 : 18}
       color={iconColor}
     />
   );
+
+  if (hero) {
+    return (
+      <>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="보관"
+          onPress={handlePress}
+          className="min-h-[40px] min-w-[40px] items-center justify-center rounded-button bg-elevated"
+        >
+          {icon}
+        </Pressable>
+
+        {visible ? (
+          <ListPickerModal
+            visible={visible}
+            movieId={movieId}
+            onClose={() => setVisible(false)}
+            onSuccess={(message) => showToast(message)}
+            onError={(message) => showToast(message)}
+          />
+        ) : null}
+      </>
+    );
+  }
 
   if (inline) {
     return (

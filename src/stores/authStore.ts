@@ -90,7 +90,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'movie-collection-auth',
+      name: 'cineverse-auth',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         sessionId: state.sessionId,

@@ -26,7 +26,7 @@ export function StarRatingInput({
   const current = rating ?? 0;
 
   return (
-    <View className="flex-row items-center" style={{ gap }}>
+    <View className="flex-row items-center justify-center" style={{ gap }}>
       {Array.from({ length: STAR_COUNT }, (_, index) => {
         const starIndex = index + 1;
         const iconName = getStarIconName(current, starIndex);
@@ -56,8 +56,7 @@ export function StarRatingInput({
               name={iconName}
               size={size}
               color={iconName === 'star-outline' ? '#6B7280' : '#FBBF24'}
-              style={{ position: 'absolute', left: 0, top: 0 }}
-              pointerEvents="none"
+              style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}
             />
           </View>
         );

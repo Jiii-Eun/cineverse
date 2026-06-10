@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { StarRatingInput } from '@/components/movie/StarRatingInput';
@@ -16,19 +17,43 @@ interface UserRatingPickerProps {
 }
 
 export function UserRatingPicker({ movieId, inline = false }: UserRatingPickerProps) {
-  const userRating = useUserMovieRating(movieId);
+  const queryRating = useUserMovieRating(movieId);
+  const [pendingRating, setPendingRating] = useState<number | null | undefined>(
+    undefined,
+  );
   const { mutate: rate, isPending: isRating } = useRateMovie(movieId);
-  const { mutate: removeRating, isPending: isRemoving } = useDeleteMovieRating(movieId);
+  const { mutate: removeRating, isPending: isRemoving } =
+    useDeleteMovieRating(movieId);
+
+  const displayRating =
+    pendingRating !== undefined ? pendingRating : (queryRating ?? null);
+
+  useEffect(() => {
+    if (
+      pendingRating !== undefined &&
+      (queryRating ?? null) === pendingRating
+    ) {
+      setPendingRating(undefined);
+    }
+  }, [pendingRating, queryRating]);
 
   const handleSelect = (value: number) => {
     if (!guardLogin()) return;
 
-    if (userRating === value) {
-      removeRating();
+    if (displayRating === value) {
+      setPendingRating(null);
+      removeRating(undefined, {
+        onError: () => setPendingRating(undefined),
+        onSettled: () => setPendingRating(undefined),
+      });
       return;
     }
 
-    rate(value);
+    setPendingRating(value);
+    rate(value, {
+      onError: () => setPendingRating(undefined),
+      onSettled: () => setPendingRating(undefined),
+    });
   };
 
   const disabled = isRating || isRemoving;
@@ -36,16 +61,19 @@ export function UserRatingPicker({ movieId, inline = false }: UserRatingPickerPr
   if (inline) {
     return (
       <View className="items-center gap-1">
-        <View className="h-12 w-12 items-center justify-center rounded-full bg-elevated">
+        <View className="h-12 w-full items-center justify-center">
           <StarRatingInput
-            rating={userRating}
+            rating={displayRating}
             onSelect={handleSelect}
-            size={8}
+            size={24}
+            gap={2}
             disabled={disabled}
           />
         </View>
         <Text variant="caption">
-          {userRating ? `내 평점 ${formatDisplayRating(userRating)}` : '평점'}
+          {displayRating
+            ? `내 평점 ${formatDisplayRating(displayRating)}`
+            : '평점'}
         </Text>
       </View>
     );
@@ -55,26 +83,30 @@ export function UserRatingPicker({ movieId, inline = false }: UserRatingPickerPr
     <View className="gap-3 rounded-card bg-card p-4">
       <View className="flex-row items-center justify-between">
         <Text variant="subtitle">내 별점</Text>
-        {userRating ? (
+        {displayRating ? (
           <Text variant="caption" className="text-rating">
-            {formatDisplayRating(userRating)} / 5
+            {formatDisplayRating(displayRating)} / 10
           </Text>
         ) : null}
       </View>
       <View className="items-center">
         <StarRatingInput
-          rating={userRating}
+          rating={displayRating}
           onSelect={handleSelect}
           size={28}
           gap={4}
           disabled={disabled}
         />
       </View>
-      {userRating ? (
+      {displayRating ? (
         <Pressable
           onPress={() => {
             if (!guardLogin()) return;
-            removeRating();
+            setPendingRating(null);
+            removeRating(undefined, {
+              onError: () => setPendingRating(undefined),
+              onSettled: () => setPendingRating(undefined),
+            });
           }}
           disabled={disabled}
           className="items-center py-1"

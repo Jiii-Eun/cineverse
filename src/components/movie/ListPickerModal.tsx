@@ -207,17 +207,16 @@ export function ListPickerModal({
     >
       <GestureHandlerRootView style={styles.overlay}>
         <Animated.View
-          pointerEvents="none"
           style={[
             StyleSheet.absoluteFill,
             backdropStyle,
-            { backgroundColor: 'rgba(0,0,0,0.4)' },
+            { backgroundColor: 'rgba(0,0,0,0.4)', pointerEvents: 'none' },
           ]}
         />
 
         <Animated.View style={[styles.sheet, sheetStyle]}>
           <View
-            className="w-full rounded-t-card bg-surface px-4 pt-2"
+            className="w-full gap-3 rounded-t-card bg-surface px-4 pt-2"
             style={{ paddingBottom: Math.max(insets.bottom, 16) }}
           >
             <GestureDetector gesture={panGesture}>
@@ -256,7 +255,7 @@ export function ListPickerModal({
             {!isLoading && !isError && lists.length > 0 ? (
               <ScrollView
                 style={{ maxHeight: LIST_MAX_HEIGHT }}
-                contentContainerStyle={{ gap: 8, paddingBottom: 4 }}
+                contentContainerStyle={{ gap: 8 }}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
               >
@@ -278,9 +277,7 @@ export function ListPickerModal({
               </ScrollView>
             ) : null}
 
-            <View className="mt-4">
-              <Button label="닫기" variant="outline" onPress={onClose} />
-            </View>
+            <Button label="닫기" variant="outline" onPress={onClose} />
           </View>
         </Animated.View>
       </GestureHandlerRootView>

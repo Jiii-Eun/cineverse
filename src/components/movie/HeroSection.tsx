@@ -2,9 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 import { RatingBadge } from '@/components/movie/RatingBadge';
+import { FolderAddButton } from '@/components/movie/FolderAddButton';
 import { WatchlistHeart } from '@/components/movie/WatchlistHeart';
 import { GradientButton } from '@/components/ui/GradientButton';
 import { Text } from '@/components/ui/Text';
@@ -57,17 +58,9 @@ export function HeroSection({ movie, runtime }: HeroSectionProps) {
             icon={<Ionicons name="play" size={16} color="#FFF" />}
             onPress={() => router.push(`/movie/${movie.id}`)}
           />
-          <Pressable
-            onPress={() => router.push(`/movie/${movie.id}`)}
-            className="min-h-[40px] min-w-[40px] items-center justify-center rounded-button bg-elevated"
-          >
-            <Ionicons name="add" size={22} color="#FFFFFF" />
-          </Pressable>
+          <WatchlistHeart movieId={movie.id} hero />
+          <FolderAddButton movieId={movie.id} hero />
         </View>
-      </View>
-
-      <View className="absolute right-3 top-3">
-        <WatchlistHeart movieId={movie.id} />
       </View>
     </View>
   );

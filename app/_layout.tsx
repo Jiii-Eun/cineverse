@@ -45,7 +45,7 @@ export default function RootLayout() {
           name="list/[id]"
           options={{
             headerShown: true,
-            headerTitle: '폴더',
+            headerTitle: '',
             ...DARK_HEADER,
           }}
         />

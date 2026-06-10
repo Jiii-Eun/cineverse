@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { Platform, Pressable, View } from 'react-native';
 
 import { MovieCardHoverContent } from '@/components/movie/MovieCardHoverContent';
+import { ListMovieRemoveButton } from '@/components/movie/ListMovieRemoveButton';
 import { MovieCardMetaOverlay } from '@/components/movie/MovieCardMetaOverlay';
 import { PosterFrame } from '@/components/movie/PosterFrame';
 import { PosterImage } from '@/components/movie/PosterImage';
@@ -12,9 +13,17 @@ import type { Movie } from '@/types/movie';
 
 interface MovieCardProps {
   movie: Movie;
+  listId?: number;
+  onRemoveFromList?: (movieId: number) => void;
+  isRemovingFromList?: boolean;
 }
 
-export function MovieCard({ movie }: MovieCardProps) {
+export function MovieCard({
+  movie,
+  listId,
+  onRemoveFromList,
+  isRemovingFromList = false,
+}: MovieCardProps) {
   const router = useRouter();
   const genreNames = useGenreName(movie.genre_ids);
 
@@ -38,7 +47,18 @@ export function MovieCard({ movie }: MovieCardProps) {
           {Platform.OS !== 'web' ? (
             <MovieCardTopActions movieId={movie.id} variant="poster" />
           ) : null}
-          <MovieCardMetaOverlay movieId={movie.id}>
+          <MovieCardMetaOverlay
+            movieId={movie.id}
+            topRightAction={
+              listId != null && onRemoveFromList ? (
+                <ListMovieRemoveButton
+                  movieId={movie.id}
+                  onRemove={onRemoveFromList}
+                  disabled={isRemovingFromList}
+                />
+              ) : undefined
+            }
+          >
             <MovieCardHoverContent
               movie={movie}
               genreNames={genreNames}

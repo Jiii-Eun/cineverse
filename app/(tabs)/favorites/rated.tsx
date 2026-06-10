@@ -5,18 +5,18 @@ import { MovieGrid } from '@/components/movie/MovieGrid';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { LoadingState } from '@/components/ui/LoadingState';
-import { useWatchlist } from '@/hooks/useWatchlist';
+import { useRatedMovies } from '@/hooks/useRatedMovies';
 import { useIsLoggedIn } from '@/stores/authStore';
 
-export default function WatchlistScreen() {
+export default function RatedMoviesScreen() {
   const isLoggedIn = useIsLoggedIn();
-  const { data, isLoading, isError, error, refetch } = useWatchlist();
+  const { data, isLoading, isError, error, refetch } = useRatedMovies();
 
   if (!isLoggedIn) {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center p-6">
-          <EmptyState message="로그인하면 찜목록을 확인할 수 있습니다." />
+          <EmptyState message="로그인하면 리뷰한 영화를 확인할 수 있습니다." />
         </View>
       </Screen>
     );
@@ -32,7 +32,7 @@ export default function WatchlistScreen() {
         />
       ) : null}
       {!isLoading && !isError && !data?.results.length ? (
-        <EmptyState message="찜한 영화가 없습니다. 카드의 하트 아이콘을 눌러 추가하세요." />
+        <EmptyState message="아직 별점을 남긴 영화가 없습니다." />
       ) : null}
       {data && data.results.length > 0 ? (
         <View className="min-h-0 flex-1">
