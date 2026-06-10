@@ -9,7 +9,7 @@ interface LoadingStateProps {
 export function LoadingState({ message = '불러오는 중...' }: LoadingStateProps) {
   return (
     <View className="flex-1 items-center justify-center gap-3 py-12">
-      <ActivityIndicator size="large" color="#1E3A5F" />
+      <ActivityIndicator size="large" color="#8B5CF6" />
       <Text variant="caption">{message}</Text>
     </View>
   );

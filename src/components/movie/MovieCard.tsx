@@ -1,43 +1,53 @@
-import { Link } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Platform, Pressable, View } from 'react-native';
 
+import { MovieCardHoverContent } from '@/components/movie/MovieCardHoverContent';
+import { MovieCardMetaOverlay } from '@/components/movie/MovieCardMetaOverlay';
+import { PosterFrame } from '@/components/movie/PosterFrame';
 import { PosterImage } from '@/components/movie/PosterImage';
-import { RatingBadge } from '@/components/movie/RatingBadge';
-import { Text } from '@/components/ui/Text';
+import { MovieCardRatingPin } from '@/components/movie/MovieCardRatingPin';
+import { MovieCardTopActions } from '@/components/movie/MovieCardTopActions';
+import { useGenreName } from '@/stores/uiStore';
 import type { Movie } from '@/types/movie';
 
 interface MovieCardProps {
   movie: Movie;
 }
 
-function formatDate(date: string) {
-  if (!date) return '개봉일 미정';
-  return date.replace(/-/g, '.');
-}
-
 export function MovieCard({ movie }: MovieCardProps) {
+  const router = useRouter();
+  const genreNames = useGenreName(movie.genre_ids);
+
+  const goToDetail = () => router.push(`/movie/${movie.id}`);
+
   return (
-    <Link href={`/movie/${movie.id}`} asChild>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${movie.title} 상세 보기`}
-        className="min-h-[44px] flex-1"
-      >
-        <View className="overflow-hidden rounded-card bg-surface shadow-sm">
+    <View className="movie-card-root w-full px-1 py-2 web:overflow-visible">
+      <View className="movie-card-surface overflow-hidden rounded-card bg-card web:origin-center web:hover:z-10 web:hover:scale-[1.03]">
+        <PosterFrame>
           <PosterImage
             posterPath={movie.poster_path}
             title={movie.title}
-            className="aspect-[2/3] w-full"
+            className="absolute inset-0 h-full w-full"
           />
-          <View className="gap-2 p-3">
-            <Text variant="subtitle" numberOfLines={2} className="text-base">
-              {movie.title}
-            </Text>
-            <RatingBadge rating={movie.vote_average} />
-            <Text variant="caption">{formatDate(movie.release_date)}</Text>
-          </View>
-        </View>
-      </Pressable>
-    </Link>
+          <Pressable
+            onPress={goToDetail}
+            accessibilityRole="button"
+            accessibilityLabel={`${movie.title} 상세 보기`}
+            className="absolute inset-0 z-0"
+          />
+          {Platform.OS !== 'web' ? (
+            <MovieCardTopActions movieId={movie.id} variant="poster" />
+          ) : null}
+          <MovieCardMetaOverlay movieId={movie.id}>
+            <MovieCardHoverContent
+              movie={movie}
+              genreNames={genreNames}
+              onReadMore={goToDetail}
+            />
+          </MovieCardMetaOverlay>
+          <MovieCardRatingPin rating={movie.vote_average} />
+        </PosterFrame>
+      </View>
+    </View>
   );
 }

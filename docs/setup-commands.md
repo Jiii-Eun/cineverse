@@ -14,10 +14,10 @@ mkdir -p .cursor/rules docs
 
 ### 생성된 파일
 
-| 파일 | 설명 |
-|------|------|
+| 파일                                 | 설명                               |
+| ------------------------------------ | ---------------------------------- |
 | `.cursor/rules/movie-collection.mdc` | 프로젝트 통합 Cursor 룰 (6개 섹션) |
-| `docs/setup-commands.md` | 명령어 사용 기록 (이 파일) |
+| `docs/setup-commands.md`             | 명령어 사용 기록 (이 파일)         |
 
 ---
 
@@ -161,6 +161,41 @@ movie-collection/
 ├── eas.json
 └── .env.example
 ```
+
+---
+
+## 2026-06-10 — 기능 확장 (카드, 검색, 인증, 목록)
+
+```bash
+npx expo install @react-native-async-storage/async-storage
+npx expo install @expo/vector-icons @react-navigation/bottom-tabs
+npx tsc --noEmit
+```
+
+### 추가된 주요 기능
+
+- MovieCard: 2:3 비율, hover scale/shadow, 찜 하트, 카드 메타 레이아웃
+- 검색 탭 (`/search`) — TMDB `search/movie`
+- 즐겨찾기 하위메뉴: 찜목록 / 커스텀 목록
+- TMDB 로그인 3단계 (request token → 승인 → session)
+- 장르·피드 카테고리 사이드바 (모바일: 좌측 드로어)
+- 하단 탭 잘림 수정 (`useBottomTabBarHeight` + safe area padding)
+
+---
+
+## 2026-06-10 — CINEVERSE 디자인 적용
+
+```bash
+npx expo install expo-linear-gradient
+npx tsc --noEmit
+```
+
+- 다크 테마 (`#0D0D12`) + 퍼플/핑크 그라데이션
+- 홈: CINEVERSE 헤더, 히어로 배너, 가로 스크롤 추천
+- 탐색: 필터 칩, 장르 그리드, 검색 리스트
+- 상세: 백드롭 히어로, 액션 아이콘
+- 프로필 탭 추가
+- 하단 탭: 홈 / 탐색 / 즐겨찾기 / 프로필
 
 ---
 

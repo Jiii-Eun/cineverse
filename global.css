@@ -1,3 +1,155 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #0d0d12;
+  }
+
+  /* 스크롤 기능 유지 + 스크롤바 숨김 */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+    background: transparent;
+  }
+}
+
+@layer components {
+  .movie-grid {
+    display: grid;
+    gap: 12px;
+    overflow: visible;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 768px) {
+    .movie-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .movie-card-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .movie-card-root:hover .movie-card-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .movie-card-surface {
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .movie-card-root:hover .movie-card-surface {
+    box-shadow:
+      6px 10px 20px -4px rgba(139, 92, 246, 0.28),
+      10px 16px 32px -8px rgba(0, 0, 0, 0.42);
+  }
+
+  .movie-card-read-more {
+    cursor: pointer;
+    z-index: 10;
+    position: relative;
+  }
+
+  .movie-card-actions--poster {
+    pointer-events: none;
+  }
+
+  .movie-card-actions--poster > * {
+    pointer-events: auto;
+  }
+
+  .movie-card-actions > * {
+    pointer-events: auto;
+  }
+
+  .movie-card-hover-actions {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .movie-card-hover-actions > * {
+    pointer-events: auto;
+  }
+
+  /* RN Web에서 numberOfLines 미적용 대비 — 줄거리 2~3줄 강제 */
+  .movie-card-overview-clamp-2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    max-height: 2rem;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  .search-input {
+    outline: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  .aside-panel-host {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .aside-panel {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .aside-panel-scroll {
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .movie-row-scroll-host,
+  .movie-row-scroll {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .movie-row-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+  }
+
+  .movie-card-overview-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    max-height: 3rem;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+}

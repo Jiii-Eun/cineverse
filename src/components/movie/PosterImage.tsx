@@ -22,7 +22,7 @@ export function PosterImage({
   if (!uri) {
     return (
       <View
-        className={`items-center justify-center bg-primary/10 ${className}`}
+        className={`items-center justify-center bg-elevated ${className}`}
         accessibilityLabel={`${title} 포스터 없음`}
       >
         <Text variant="caption" className="px-2 text-center">

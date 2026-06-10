@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchMovieDetail } from '@/services/tmdb';
+import { fetchMovieDetail } from '@/services/tmdb/movies';
 
 export function useMovieDetail(id: number) {
   return useQuery({

@@ -6,15 +6,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#F8F6F3',
-        surface: '#FFFFFF',
-        primary: '#1E3A5F',
-        accent: '#C45C3E',
+        background: '#0D0D12',
+        surface: '#16161F',
+        card: '#1A1A24',
+        elevated: '#1F1F2B',
+        primary: '#8B5CF6',
+        accent: '#EC4899',
         muted: '#6B7280',
+        foreground: '#FFFFFF',
+        rating: '#FBBF24',
+        border: 'rgba(255,255,255,0.08)',
       },
       borderRadius: {
-        card: '12px',
-        button: '8px',
+        card: '16px',
+        button: '12px',
+        chip: '20px',
       },
     },
   },
