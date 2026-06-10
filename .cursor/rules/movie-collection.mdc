@@ -1,0 +1,160 @@
+---
+description: Movie Collection — Expo RN/Web 앱 개발 규칙 (기술 스택, 보안, 스타일, 아키텍처)
+globs: **/*.{ts,tsx,js,jsx,json}
+alwaysApply: true
+---
+
+# Movie Collection 프로젝트 규칙
+
+## 1. 기술 스택 정의 (Tech Stack)
+
+- **Expo** — 개발, 빌드, 웹·APK 산출
+- **React Native** — 모바일 UI
+- **React Native Web** — 웹/PC UI
+- **TypeScript** — `strict: true`, `any` 금지
+- **NativeWind** — 유일한 스타일링 방식 (`className` 기반)
+- **TanStack Query** — TMDB API 서버 상태 (캐싱, 페이지네이션, 로딩/에러)
+- **Zustand** — 클라이언트/UI 상태 (필터, 즐겨찾기, 검색어, 모달 등)
+- **TMDB API** — 영화 데이터 (`/movie/now_playing` 등)
+
+**배포:** Google Play 스토어 배포 없이 **Android APK 직접 배포**.
+
+**환경 변수:** `.env` + `.env.example` 사용. API 키는 코드·커밋에 포함 금지.
+
+```
+EXPO_PUBLIC_TMDB_API_KEY=
+EXPO_PUBLIC_TMDB_BASE_URL=https://api.themoviedb.org/3
+EXPO_PUBLIC_TMDB_IMAGE_BASE_URL=https://image.tmdb.org/t/p
+EXPO_PUBLIC_TMDB_LANGUAGE=ko-KR
+EXPO_PUBLIC_TMDB_REGION=KR
+```
+
+---
+
+## 2. 코드 보안 및 엄격한 금지 규칙 (Strict Code Security & Ban Rules)
+
+- **NEVER** `innerHTML` 또는 `dangerouslySetInnerHTML` 사용. React 텍스트 바인딩·시맨틱 요소 사용.
+- **NEVER** `eval()` 또는 `Function()` 생성자로 동적 문자열 실행.
+- **NEVER** TypeScript `any` 타입 사용. interface, type, 또는 `unknown` + 타입 가드 사용.
+- React 컴포넌트 내 바닐라 DOM 조작 금지 (`document.getElementById` 등). `useRef`, State, RN 컴포넌트 사용.
+- API 키·시크릿 하드코딩 금지. `.env` 파일 커밋 금지 (`.env.example`만 커밋).
+- 프로덕션에서 `console.log`에 사용자 데이터·토큰 출력 금지.
+- `fetch` 응답을 `as` 단언만으로 신뢰하지 말 것. 타입 가드 또는 검증 적용.
+- **NEVER** `StyleSheet.create()`, 인라인 `style`, 별도 CSS 파일, 기타 스타일 라이브러리 사용 (NativeWind만 허용).
+
+---
+
+## 3. 함수 작성 및 코드 스타일 규칙 (Function & Code Style Rules)
+
+- 함수는 **단일 책임** — API 호출, UI 렌더, 상태 변환 분리.
+- **명명:** 컴포넌트 `PascalCase`, 훅 `use*`, 유틸·서비스 `camelCase`, 상수 `UPPER_SNAKE_CASE`.
+- Props는 `interface`로 정의. optional은 `?`로 명시.
+- 비동기는 `async/await` 사용. 에러는 호출부 또는 에러 바운더리에서 처리.
+- 자명한 코드에 불필요한 주석 금지. TMDB API 특이사항·비즈니스 로직만 주석.
+- **import 순서:** React/RN → 외부 라이브러리 → `@/` 내부 모듈 → 타입.
+- **스타일:** 모든 스타일은 NativeWind `className`으로 작성.
+- 5줄 이상 반복되는 `className`은 `components/ui/`로 추출.
+- 색상·간격·radius는 `tailwind.config.js` 토큰만 사용 (임의 hex 금지).
+
+```tsx
+// ✅ GOOD
+<View className="flex-1 bg-background px-4">
+  <Text className="text-primary text-lg font-semibold">상영 중</Text>
+</View>
+
+// ❌ BAD
+const styles = StyleSheet.create({ container: { flex: 1 } });
+<View style={styles.container} />
+```
+
+---
+
+## 4. 상태 관리 및 성능 최적화 규칙 (State & Performance Rules)
+
+### TanStack Query (서버 상태)
+- TMDB API 데이터는 TanStack Query로만 관리. API 응답을 Zustand에 중복 저장 금지.
+- `queryKey` 형식: `['movies', endpoint, params]` (일관성 유지).
+- API 호출: `services/tmdb.ts` (queryFn), 화면 연동: `hooks/use*.ts` (useQuery / useInfiniteQuery).
+- `staleTime`, `retry` 설정으로 불필요한 재요청 방지.
+- 모든 데이터 화면에 로딩·에러·빈 상태 UI 제공.
+
+### Zustand (클라이언트 상태)
+- 필터, 즐겨찾기, 검색어, UI 토글 등 API 밖 상태만 관리.
+
+### 성능
+- 목록: `FlatList` / `FlashList`, `keyExtractor`는 `movie.id` 기반.
+- 이미지: TMDB `poster_path` + 적절한 사이즈 (`w342`, `w500`) + placeholder·에러 fallback.
+- `useMemo` / `useCallback`은 측정된 병목 또는 memo 컴포넌트에만 사용.
+
+---
+
+## 5. 공통 레이아웃 및 아키텍처 규칙 (Layout & Architecture)
+
+### 레이어 분리
+```
+app/ (screens) → hooks/ → components/ → stores/ → services/ → types/
+```
+
+- **화면 (`app/`):** 라우트·레이아웃 조합. 비즈니스 로직 최소화.
+- **`components/ui/`:** Button, Text, Card, Skeleton, ErrorState 등 디자인 시스템.
+- **`components/layout/`:** Screen, Header, SideNav, BottomNav.
+- **`components/movie/`:** MovieCard, MovieGrid, PosterImage, RatingBadge.
+- **`services/tmdb.ts`:** API 호출·쿼리 빌드만. UI import 금지.
+- **`lib/queryClient.ts`:** QueryClient 인스턴스·기본 옵션.
+- **`stores/`:** Zustand UI 스토어.
+
+### 디자인 원칙 (시네마 라운지)
+- **목적:** 넷플릭스와 유사한 영화 탐색 서비스. **UI는 넷플릭스를 모방하지 않음.**
+- 밝은 배경 (`background: #F8F6F3`), 딥 네이비·테라코타 포인트. 넷플릭스 레드·전체 다크 테마 지양.
+- **세로 그리드 카드** 중심 레이아웃. 가로 스크롤 행만 있는 홈 구성 지양.
+- 모바일: 하단 탭 / PC: 좌측 사이드바. 탐색 경로 명확히.
+- 터치 타겟 최소 44pt. 정보 계층(제목 > 메타 > 설명) 명확.
+- 반응형: NativeWind variant (`sm:`, `md:`, `lg:`) 우선. `*.web.tsx`는 동작 차이에만 사용.
+
+### Provider (앱 루트)
+```tsx
+<QueryClientProvider client={queryClient}>
+  {/* Expo Router */}
+</QueryClientProvider>
+```
+
+---
+
+## 6. 파일명 및 디렉토리 구조 컨벤션 (Naming & Directory Conventions)
+
+```
+movie-collection/
+├── .cursor/rules/
+├── app/                    # Expo Router 화면
+│   ├── (tabs)/
+│   │   └── index.tsx       # 홈 (상영작)
+│   └── movie/[id].tsx      # 영화 상세
+├── src/
+│   ├── components/
+│   │   ├── ui/
+│   │   ├── layout/
+│   │   └── movie/
+│   ├── hooks/              # useNowPlaying.ts 등
+│   ├── services/           # tmdb.ts
+│   ├── stores/             # uiStore.ts
+│   ├── types/              # movie.ts
+│   ├── lib/                # queryClient.ts
+│   └── constants/          # config.ts (env 래핑)
+├── .env.example
+├── tailwind.config.js
+└── eas.json                # APK 빌드 설정
+```
+
+| 대상 | 규칙 | 예시 |
+|------|------|------|
+| 화면 | Expo Router 파일명 | `app/movie/[id].tsx` |
+| 컴포넌트 | `PascalCase.tsx` | `MovieCard.tsx` |
+| 훅 | `use*.ts` | `useNowPlaying.ts` |
+| 서비스 | `camelCase.ts` | `tmdb.ts` |
+| 타입 | 도메인명 | `movie.ts` |
+| Path alias | `@/` → `src/` | `@/components/movie/MovieCard` |
+
+**금지:**
+- `components` 안에 API 호출 직접 작성 (→ `services` + `hooks`)
+- `utils`에 UI 컴포넌트 혼재
+- 플랫폼별 파일(`*.web.tsx`, `*.android.tsx`) 남발
